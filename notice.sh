@@ -64,3 +64,15 @@ wxTemplate() {
                 }
             }'
 }
+
+PushBearNotice() {
+    curl --request GET \
+         --url "https://pushbear.ftqq.com/sub?sendkey=${SENDKEY}&text=${1}&desp=${2}" \
+         --header 'cache-control: no-cache'
+}
+
+ServerNotice() {
+    curl --request GET \
+         --url "https://sc.ftqq.com/${SCKEY}.send?text=${1}&desp=${2}" \
+         --header 'cache-control: no-cache'
+}

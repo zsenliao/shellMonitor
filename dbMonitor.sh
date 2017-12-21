@@ -27,6 +27,14 @@ dbMonitor() {
                 WeChatNotice "警告：管理员账号数据库被修改！" ${WEBSITE} "${DB_CHANGE}" "管理员账号修改"
             fi
 
+            if [[ ${SC_NOTICE} = "true" ]]; then
+                ServerNotice "网站${WEBSITE}预警通知！" "监控项目：管理员账号修改"
+            fi
+
+            if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
+                PushBearNotice "网站${WEBSITE}预警通知！" "监控项目：管理员账号修改"
+            fi
+
             DB_CHANGE=$(diff ${ORIGIN_DB} ${TMP_DB})"\\n===*=*=*===\\n"
 
             echo ${DIFF_DB} > ${TODAY_DB}
@@ -49,6 +57,14 @@ dbMonitor() {
 
             if [[ ${WECHAT_NOTICE} = "true" ]]; then
                 WeChatNotice "警告：系统设置数据库被修改！" ${WEBSITE} ${DIFF_DB} "系统设置修改"
+            fi
+
+            if [[ ${SC_NOTICE} = "true" ]]; then
+                ServerNotice "网站${WEBSITE}预警通知！" "监控项目：系统设置数据库被修改"
+            fi
+
+            if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
+                PushBearNotice "网站${WEBSITE}预警通知！" "监控项目：系统设置数据库被修改"
             fi
 
             echo ${DIFF_DB} > ${TODAY_DB}

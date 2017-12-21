@@ -10,13 +10,15 @@ MONITOR_DIR=""  # 监控目录，多个目录用空格隔开
 EXCLUDE_DIR=""  # 排除目录，多个目录用空格隔开
 BACKUP_DIR=""  # 备份文件目录，如果没有，会自动生成
 
-# 备份相关
-ZIP_BACKUP="true"  # 启用 ZIP 压缩备份，如不启用，请改为 false
-FILE_BACKUP="true"  # 启用文件备份，如不启用，请改为 false
+# 备份相关，如不启用，请改为 false
+ZIP_BACKUP="true"  # 启用 ZIP 压缩备份
+FILE_BACKUP="true"  # 启用文件备份
 
-# 通知相关
-MAIL_NOTICE="true"  # 邮件通知，如不启用，请改为 false
-WECHAT_NOTICE="true"  # 微信通知，如不启用，请改为 false
+# 通知相关，如不启用，请改为 false
+MAIL_NOTICE="true"  # 邮件通知
+WECHAT_NOTICE="true"  # 微信通知
+SC_NOTICE="true"  # Server酱通知
+PUSHBEAR_NOTICE="true"  # PushBear通知
 
 # 发邮件参数，如果 MAIL_NOTICE 值为 true，以下内容必填
 Mail_TO=""  # 接受报警通知邮箱，多个邮箱请用空格隔开
@@ -28,6 +30,9 @@ TOUSER=""  # 接收推送用户 openid，多个用户用空格隔开
 TEMPLATE_ID=""  # 模版ID
 APPID=""
 SECRET=""
+
+SCKEY=""  # Server酱的 KEY
+SENDKEY=""  # PushBear 的 SendKey
 
 # 保留备份文件的天数
 BACKUP_DAY="30"

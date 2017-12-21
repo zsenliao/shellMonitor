@@ -26,6 +26,14 @@ fileMonitor() {
                     WeChatNotice "警告：监控文件被修改！" ${WEBSITE} ${DIR_NAME} "文件修改"
                 fi
 
+                if [[ ${SC_NOTICE} = "true" ]]; then
+                    ServerNotice "网站${WEBSITE}预警通知！" "监控项目：${DIR_NAME}文件修改"
+                fi
+
+                if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
+                    PushBearNotice "网站${WEBSITE}预警通知！" "监控项目：${DIR_NAME}文件修改"
+                fi
+
                 cp -f ${TMP_FILE} ${ORIGIN_FILE}  # 将当前状态覆盖为初始监控状态
             fi
         fi

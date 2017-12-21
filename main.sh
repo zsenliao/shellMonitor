@@ -70,7 +70,17 @@ if [[ ${1} = "init" ]]; then
     initFileMonitor
     initDBMonitor
 
-    WeChatNotice "监控初始化成功！" ${WEBSITE} "网站文件和数据库" "监控初始化成功"
+    if [[ ${WECHAT_NOTICE} = "true" ]]; then
+        WeChatNotice "监控初始化成功！" ${WEBSITE} "网站文件和数据库" "监控初始化成功"
+    fi
+
+    if [[ ${SC_NOTICE} = "true" ]]; then
+        ServerNotice "监控初始化成功！" "监控项目：网站文件和数据库"
+    fi
+
+    if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
+        PushBearNotice "监控初始化成功！" "监控项目：网站文件和数据库"
+    fi
 else
     fileMonitor
     dbMonitor
