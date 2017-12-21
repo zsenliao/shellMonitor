@@ -76,7 +76,7 @@ echo "*/5 * * * * /home/shellMonitor/main.sh" >> /var/spool/cron/root
 * [ ] 监控文件或数据库设置错误情况下的异常处理
 * [ ] 如邮件通知方式选择 `mutt` 但系统中并没有安装改工具下的处理
 * [ ] 增加 `SSH` 或 `SFTP` 登录的预警通知
-* [ ] 增加「[PushBear](http://pushbear.ftqq.com/admin/#/api)」预警通知功能
+* [x] 增加「[PushBear](http://pushbear.ftqq.com/admin/#/api)」预警通知功能
 * [x] 增加 「[Server酱](http://sc.ftqq.com/3.version)」预警通知功能
 
 ## 相关说明及风险提示
