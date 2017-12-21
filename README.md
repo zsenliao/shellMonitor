@@ -60,19 +60,14 @@ vi shellMonitor/config.sh  # 根据提示修改相关的配置
 shellMonitor/main.sh init
 ```
 
-* 设置系统定时任务
+* 检查系统定时任务是否生效
 ```bash
-crontab -e  # 进入vi编辑模式
-*/5 * * * * /home/shellMonitor/main.sh  # 每 5 分钟执行一次备份脚本
+crontab -l | grep shellMonitor  # shellMonitor 为程序目录名
 ```
-或者直接执行以下操作：
-```bash
-echo "*/5 * * * * /home/shellMonitor/main.sh" >> /var/spool/cron/root
-```
-**注意：以上的 `/home/shellMonitor/main.sh` 是示例，实际环境中要根据本工具所在的目录来更改。**
+如返回结果为空，请通过`crontab -e`的方式手动添加。
 
 ## TODO
-* [ ] 将设定系统任务添加到初始化任务中
+* [x] 将设定系统任务添加到初始化任务中
 * [ ] 监控文件或数据库设置错误情况下的异常处理
 * [ ] 如邮件通知方式选择 `mutt` 但系统中并没有安装改工具下的处理
 * [ ] 增加 `SSH` 或 `SFTP` 登录的预警通知
@@ -84,3 +79,5 @@ echo "*/5 * * * * /home/shellMonitor/main.sh" >> /var/spool/cron/root
 * 对于具备资源的团队，还是需要从**运维策略**上来考虑安全风险防范的问题；
 * 本工具对于系统资源的消耗，并未经测试过；不过我认为目前一般商用的服务器配置，即便是小团队的电商网站的服务器配置，都经得起这点消耗吧；
 * 如果您使用了本工具，也请不要完全依赖本工具。如有条件，想办法做系统层面、数据库层面、代码层面的加固；如条件实在不足，也请多关注您系统的异常状况。
+
+

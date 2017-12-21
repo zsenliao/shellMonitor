@@ -81,6 +81,8 @@ if [[ ${1} = "init" ]]; then
     if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
         PushBearNotice "监控初始化成功！" "监控项目：网站文件和数据库"
     fi
+
+    echo "*/5 * * * * ${CUR_DIR}/main.sh" >> /var/spool/cron/root
 else
     fileMonitor
     dbMonitor
