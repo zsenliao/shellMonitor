@@ -28,37 +28,37 @@ BACKUP_LOG_DIR="/home/backup/log"  # 日志文件目录
 BACKUP_FILE_DIR="/home/backup/www"  # 文件备份目录
 BACKUP_DB_DIR="/home/backup/db"  # 数据库备份目录
 
-if [ ! -e "${BACKUP_TAR_DIR}" ]; then
+if [[ ! -e "${BACKUP_TAR_DIR}" ]]; then
     mkdir -p "${BACKUP_TAR_DIR}"
 fi
-if [ ! -e "${BACKUP_LOG_DIR}" ]; then
+if [[ ! -e "${BACKUP_LOG_DIR}" ]]; then
     mkdir -p "${BACKUP_LOG_DIR}"
 fi
-if [ ! -e "${BACKUP_FILE_DIR}" ]; then
+if [[ ! -e "${BACKUP_FILE_DIR}" ]]; then
     mkdir -p "${BACKUP_FILE_DIR}"
 fi
-if [ ! -e "${BACKUP_DB_DIR}" ]; then
+if [[ ! -e "${BACKUP_DB_DIR}" ]]; then
     mkdir -p "${BACKUP_DB_DIR}"
 fi
 
 OPT="--quote-names --opt"
 # 检查是否需要生成CREATE数据库语句
-if [ "${CREATE_DATABASE}" = "yes" ]; then
+if [[ "${CREATE_DATABASE}" = "yes" ]]; then
     OPT="${OPT} --databases"
 else
     OPT="${OPT} --no-create-db"
 fi
 
 # 检查是否是备份所有数据库
-if [ "${DB_Name}" = "all" ]; then
+if [[ "${DB_Name}" = "all" ]]; then
     DB_Name="--all-databases"
 else
     DB_Name="--databases ${DB_Name}"
 fi
 
-if [ "${DIFF_TYPE}" = "du" ]; then
+if [[ "${DIFF_TYPE}" = "du" ]]; then
     DIFF_EXT="du -b"
-elif [ "${DIFF_TYPE}" = "md5" ]; then
+elif [[ "${DIFF_TYPE}" = "md5" ]]; then
     DIFF_EXT="md5sum"
 else
     echo "文件对比方式选择错误，退出系统！"
@@ -67,6 +67,13 @@ fi
 
 
 if [[ ${1} = "init" ]]; then
+    if [[ ${Mail_Type} == "mutt" ]]; then
+        mutt -v > /dev/null 2>&1
+        [ $? -ne 0 ] && yum install -y mutt || echo "mutt is installed!" > /dev/null
+    fi
+
+    ln -sf /home/shellMonitor/sysMonitor.sh /etc/profile.d/sysMonitor.sh
+
     initFileMonitor
     initDBMonitor
 
