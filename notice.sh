@@ -12,12 +12,7 @@ MailNotice() {
 }
 
 WeChatNotice() {
-    # 获取微信 access token
-    # return: {"access_token":"ACCESS_TOKEN","expires_in":7200}
-    local JSON_STR=$(curl --request GET --url "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${APPID}&secret=${SECRET}" --header 'cache-control: no-cache')
-    ACCESS_TOKEN=$(echo $JSON_STR | sed "s/{\"access_token\":\"//" | sed "s/\",\"expires_in\":7200}//")
-    # ACCESS_TOKEN=${JSON_STR#\{\"access_token\":\"}
-    # ACCESS_TOKEN=${ACCESS_TOKEN%\",\"expires_in\":7200\}}
+    GetAccessToken
 
     # 发送模版消息，多个用户以空格分隔
     for OPENID in $(echo $TOUSER | tr -s ' '); do
@@ -63,6 +58,33 @@ wxTemplate() {
                     }
                 }
             }'
+}
+
+GetAccessToken() {
+    if [ ! -f "/tmp/access_token" ]; then
+        touch "/tmp/access_token"
+        GetAccessToken4Curl
+    else
+        local MTIME=$(cat /tmp/access_token | grep expires_time | cut -d "|" -f 1)
+        let local EXPTIME=$(date +%s)-${MTIME}
+        if [ ${EXPTIME} -lt 6000 ]; then
+            ACCESS_TOKEN=$(cat /tmp/access_token | grep access_token | cut -d "|" -f 1)
+        else
+            GetAccessToken4Curl
+        fi
+    fi
+}
+
+GetAccessToken4Curl() {
+    # 获取微信 access token
+    # return: {"access_token":"ACCESS_TOKEN","expires_in":7200}
+    local JSON_STR=$(curl --request GET --url "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${APPID}&secret=${SECRET}" --header 'cache-control: no-cache')
+    ACCESS_TOKEN=$(echo $JSON_STR | sed "s/{\"access_token\":\"//" | sed "s/\",\"expires_in\":7200}//")
+    # ACCESS_TOKEN=${JSON_STR#\{\"access_token\":\"}
+    # ACCESS_TOKEN=${ACCESS_TOKEN%\",\"expires_in\":7200\}}
+
+    echo "${ACCESS_TOKEN}|access_token" > /tmp/access_token
+    echo "$(date +%s)|expires_time" >> /tmp/access_token
 }
 
 PushBearNotice() {
