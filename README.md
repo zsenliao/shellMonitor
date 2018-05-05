@@ -69,6 +69,11 @@ crontab -l | grep shellMonitor  # shellMonitor 为程序目录名
 * `SSH` 登录预警通知的手动添加方式
 ```bash
 ln -sf /home/shellMonitor/sysMonitor.sh /etc/profile.d/sysMonitor.sh
+
+sed -i "s/^PrintMotd [a-z]*/#&/g; 1,/#PrintMotd[a-z]*/{s/^#PrintMotd [a-z]*/PrintMotd no/g}" /etc/ssh/sshd_config
+
+# 重启 SSH 服务
+service sshd restart
 ```
 > 注意：需要修改 `sysMonitor.sh` 文件中的 `CUR_DIR` 为脚本所在的实际路径
 

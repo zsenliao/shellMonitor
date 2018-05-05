@@ -73,6 +73,8 @@ if [[ ${1} = "init" ]]; then
     fi
 
     ln -sf /home/shellMonitor/sysMonitor.sh /etc/profile.d/sysMonitor.sh
+    sed -i "s/^PrintMotd [a-z]*/#&/g; 1,/#PrintMotd[a-z]*/{s/^#PrintMotd [a-z]*/PrintMotd no/g}" /etc/ssh/sshd_config
+    service sshd restart
 
     initFileMonitor
     initDBMonitor
