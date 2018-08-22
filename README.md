@@ -3,6 +3,12 @@
 
 写这个工具的原因，在于一个朋友的一个小电商网站，因为未明原因被黑了，总是会被增加超级管理员，并将收款账号改成别人的。于是有了写一个监控工具的想法。
 
+> 因为不断的重新安装/初始化各项系统服务，为了方（TOU）便（LAN），写了一个[服务器初始化脚本](https://github.com/zsenliao/initServer)，主要功能包括：
+> * 可选添加用户及 SSH 傻瓜式配置；
+> * git/zsh/oh-my-zsh 等安装、vim 升级（增加`nginx`, `ini`, `php`, `python`等文件类型的高亮显示）；
+> * MySQL/PHP/Python3(uwsgi)/Redis/Nodejs/Nginx/ikev2/acme.sh 等服务可选择安装；
+> * 提供了一个简单的管理工具，用于管理`nginx`,`mysql`,`php-fpm`,`redis`,`uwsgi`等服务，以及新增站点（自动申请并配置安装域名证书）；
+
 ## 主要功能
 
 ### 监控功能
