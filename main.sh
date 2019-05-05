@@ -11,7 +11,6 @@ CUR_DIR=$(cd $(dirname $BASH_SOURCE); pwd)
 CUR_SIZE=$(df -m /home | awk 'END{print $4}')
 if [[ ${CUR_SIZE} -lt ${MIN_SIZE} ]]; then
     # email
-    echo ${CUR_SIZE}
     WeChatNotice "警告：网站剩余空间不足！" "网站空间" "剩余 ${CUR_SIZE}M" "备份失败"
     exit 0
 fi
@@ -50,16 +49,16 @@ else
 fi
 
 # 检查是否是备份所有数据库
-if [[ "${DB_Name}" = "all" ]]; then
-    DB_Name="--all-databases"
+if [[ "${DB_NAME}" = "all" ]]; then
+    DB_NAME="--all-databases"
 else
-    DB_Name="--databases ${DB_Name}"
+    DB_NAME="--databases ${DB_NAME}"
 fi
 
-if [[ "${DIFF_TYPE}" = "du" ]]; then
-    DIFF_EXT="du -b"
+if [[ ${DIFF_TYPE} = "du" ]]; then
+    DIFF_TYPE="du -b"
 elif [[ "${DIFF_TYPE}" = "md5" ]]; then
-    DIFF_EXT="md5sum"
+    DIFF_TYPE="md5sum"
 else
     echo "文件对比方式选择错误，退出系统！"
     exit 0
@@ -67,7 +66,7 @@ fi
 
 
 if [[ ${1} = "init" ]]; then
-    if [[ ${Mail_Type} == "mutt" ]]; then
+    if [[ ${MAIL_TYPE} == "mutt" ]]; then
         mutt -v > /dev/null 2>&1
         [ $? -ne 0 ] && yum install -y mutt || echo "mutt is installed!" > /dev/null
     fi
@@ -80,7 +79,7 @@ if [[ ${1} = "init" ]]; then
     initDBMonitor
 
     if [[ ${WECHAT_NOTICE} = "true" ]]; then
-        WeChatNotice "监控初始化成功！" ${WEBSITE} "网站文件和数据库" "监控初始化成功"
+        WeChatNotice "监控初始化成功！" "${WEBSITE}" "网站文件和数据库" "监控初始化成功" "文件目录：${MONITOR_DIR}"
     fi
 
     if [[ ${SC_NOTICE} = "true" ]]; then
@@ -110,7 +109,7 @@ FILE_CHANGE=""
 DB_CHANGE=""
 
 if [[ ${BACKUP_DAY} != 0 ]]; then
-    rm -f ${BACKUP_TAR_DIR}/*.${DEL_DATE}*.tar.gz
-    rm -rf ${BACKUP_FILE_DIR}/*.${DEL_DATE}*
-    rm -f ${BACKUP_DB_DIR}/db.${DEL_DATE}*.sql.gz
+    rm -f "${BACKUP_TAR_DIR}/*.${DEL_DATE}*.tar.gz"
+    rm -rf "${BACKUP_FILE_DIR}/*.${DEL_DATE}*"
+    rm -f "${BACKUP_DB_DIR}/db.${DEL_DATE}*.sql.gz"
 fi

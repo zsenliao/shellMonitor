@@ -7,8 +7,8 @@ WEBSITE=""
 
 # 监控目录
 MONITOR_DIR=""  # 监控目录，多个目录用空格隔开
-EXCLUDE_DIR=""  # 排除目录，多个目录用空格隔开
-BACKUP_DIR=""  # 备份文件目录，如果没有，会自动生成
+EXCLUDE_DIR=""  # 排除目录，暂不支持多个目录 #TODO
+BACKUP_DIR=""  # 备份文件目录
 
 # 备份相关，如不启用，请改为 false
 ZIP_BACKUP="true"  # 启用 ZIP 压缩备份
@@ -17,13 +17,13 @@ FILE_BACKUP="true"  # 启用文件备份
 # 通知相关，如不启用，请改为 false
 MAIL_NOTICE="true"  # 邮件通知
 WECHAT_NOTICE="true"  # 微信通知
-SC_NOTICE="true"  # Server酱通知
-PUSHBEAR_NOTICE="true"  # PushBear通知
+SC_NOTICE="false"  # Server酱通知
+PUSHBEAR_NOTICE="false"  # PushBear通知
 
 # 发邮件参数，如果 MAIL_NOTICE 值为 true，以下内容必填
-Mail_TO=""  # 接受报警通知邮箱，多个邮箱请用空格隔开
-Mail_Type="mail"  # 发送邮件方式，可选 mail 或 mutt
-Mail_From="backup@${WEBSITE}"  # 发送预警通知邮件地址
+MAIL_TO=""  # 接受报警通知邮箱，多个邮箱请用空格隔开
+MAIL_TYPE="mail"  # 发送邮件方式，可选 mail 或 mutt
+MAIL_FROM="backup@${WEBSITE}"  # 发送预警通知邮件地址
 
 # 微信推送参数，如果 WECHAT_NOTICE 值为 true，以下内容必填
 TOUSER=""  # 接收推送用户 openid，多个用户用空格隔开
@@ -45,9 +45,9 @@ MIN_SIZE="100"  # 存储空间低于该容量不再备份，并发送预警通�
 #     备份数据库：每天备份一次，全量备份，不做对比及报警
 #     监控数据表：定时执行，如数据有改动，会发送报警通知
 DB_HOST="localhost"
-DB_User="root"
-DB_Pass="root"
-DB_Name="all"  # 需要备份的数据库名 All 或 输入类似 db1 db2 的列表清单
+DB_USER="root"
+DB_PASS="root"
+DB_NAME="all"  # 需要备份的数据库名 All 或 输入类似 db1 db2 的列表清单
 CREATE_DATABASE="yes"  # 备份MYSQL时生成CREATE数据库语句
 DB_MONITOR_NAME=""  # 需要监控的数据库名，只能为单一数据库。以下监控的数据表必须是此数据库中的表
 DB_MONITOR_TABLE=""  # 数据库中需要监控的表，监控全部字段变化，可以为多个表，以空格隔开

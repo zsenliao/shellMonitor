@@ -9,18 +9,18 @@ LOGIN_IP=`echo $SSH_CLIENT | cut -d " " -f 1`
 LOGIN_USER=`whoami`
 
 if [[ ${WECHAT_NOTICE} = "true" ]]; then
-    WeChatNotice "系统SSH登录提醒！" ${WEBSITE} "[登录用户]${LOGIN_USER}" "[登录IP]${LOGIN_IP}"
+    WeChatNotice "${WEBSITE} SSH 登录提醒！" "${WEBSITE}" "[登录用户]${LOGIN_USER}" "[登录IP]${LOGIN_IP}" "如非本人登录，请检查服务器安全！"
 fi
 
 if [[ ${SC_NOTICE} = "true" ]]; then
-    ServerNotice "网站${WEBSITE}SSH登录提醒！" "[登录用户]${LOGIN_USER} \n[登录IP]${LOGIN_IP}"
+    ServerNotice "${WEBSITE} SSH 登录提醒！" "[登录用户]${LOGIN_USER} \n[登录IP]${LOGIN_IP} \n如非本人登录，请检查服务器安全！"
 fi
 
 if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
-    PushBearNotice "网站${WEBSITE}SSH登录提醒！" "[登录用户]${LOGIN_USER} \n[登录IP]${LOGIN_IP}"
+    PushBearNotice "${WEBSITE} SSH 登录提醒！" "[登录用户]${LOGIN_USER} \n[登录IP]${LOGIN_IP} \n如非本人登录，请检查服务器安全！"
 fi
 
-MailNotice "网站${WEBSITE}SSH登录提醒！" "[登录用户]${LOGIN_USER} [登录IP]${LOGIN_IP}"
+MailNotice "${WEBSITE} SSH 登录提醒！" "[登录用户]${LOGIN_USER}<br>[登录IP]${LOGIN_IP}<br>如非本人登录，请检查服务器安全！"
 
 # cat /var/log/audit/audit.log | grep "failed"
 

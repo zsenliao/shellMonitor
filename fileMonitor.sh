@@ -2,53 +2,53 @@
 
 # 文件备份
 fileMonitor() {
-    for DIR in $(echo $MONITOR_DIR | tr -s ' '); do
+    for DIR in $(echo "${MONITOR_DIR}" | tr -s ' '); do
         if [[ -d ${DIR} ]]; then
             DIR_NAME=${DIR##*/}
             TMP_FILE="/tmp/${DIR_NAME}.txt"
             ORIGIN_FILE="${BACKUP_LOG_DIR}/${DIR_NAME}.origin.txt"
             LOG_FILE="${BACKUP_LOG_DIR}/${DIR_NAME}.${DATE}_change.log"
 
-            getFileInfo ${DIR} ${TMP_FILE}
+            getFileInfo "${DIR}" "${TMP_FILE}"
 
-            local DIFF_FILE=$(diff ${ORIGIN_FILE} ${TMP_FILE})
+            local DIFF_FILE
+            DIFF_FILE=$(diff "${ORIGIN_FILE}" "${TMP_FILE}" | awk '{print $1$3}' | sort -k2n | uniq -c -s3 | sed '/[<>]/!d;s/1 </【删除】/;s/1 >/【增加】/;s/2 </【编辑】/')
 
             if [[ -n $DIFF_FILE ]]; then
                 FILE_CHANGE="${FILE_CHANGE} ${DIR} is change:\\n"
                 FILE_CHANGE="${FILE_CHANGE} ${DIFF_FILE}"
-                # FILE_CHANGE="${FILE_CHANGE} $(echo ${DIFF_FILE} | awk '{print $1$3}' | sort -k2n | uniq -c -s3 | sed '/[<>]/!d;s/1 </删除：/;s/1 >/增加：/;s/2 </编辑：/')"
 
-                echo ${DIFF_FILE} >> ${LOG_FILE}
+                echo "${DIFF_FILE}" >> "${LOG_FILE}"
 
-                backupFile ${DIR}
+                backupFile "${DIR}"
 
                 if [[ ${WECHAT_NOTICE} = "true" ]]; then
-                    WeChatNotice "警告：监控文件被修改！" ${WEBSITE} ${DIR_NAME} "文件修改"
+                    WeChatNotice "警告：监控文件被修改！" "${WEBSITE}" "${DIR_NAME}" "文件更改" "${DIFF_FILE}"
                 fi
 
                 if [[ ${SC_NOTICE} = "true" ]]; then
-                    ServerNotice "网站${WEBSITE}预警通知！" "监控项目：${DIR_NAME}文件修改"
+                    ServerNotice "监控项目：${DIR_NAME}文件修改" "修改内容：${DIFF_FILE}"
                 fi
 
                 if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
-                    PushBearNotice "网站${WEBSITE}预警通知！" "监控项目：${DIR_NAME}文件修改"
+                    PushBearNotice "监控项目：${DIR_NAME}文件修改" "修改内容：${DIFF_FILE}"
                 fi
 
-                cp -f ${TMP_FILE} ${ORIGIN_FILE}  # 将当前状态覆盖为初始监控状态
+                cp -f "${TMP_FILE}" "${ORIGIN_FILE}"  # 将当前状态覆盖为初始监控状态
             fi
         fi
     done
 }
 
 initFileMonitor() {
-    for DIR in $(echo $MONITOR_DIR | tr -s ' '); do
+    for DIR in $(echo "${MONITOR_DIR}" | tr -s ' '); do
         if [[ -d ${DIR} ]]; then
             local DIR_NAME=${DIR##*/}
             local ORIGIN_FILE="${BACKUP_LOG_DIR}/${DIR_NAME}.origin.txt"
 
             # 遍历指定目录下的文件大小及路径并重定向到日志文件
-            getFileInfo ${DIR} ${ORIGIN_FILE}
-            backupFile ${DIR}
+            getFileInfo "${DIR}" "${ORIGIN_FILE}"
+            backupFile "${DIR}"
         fi
     done
 }
@@ -58,18 +58,18 @@ getFileInfo() {
     # find: 需要验证目录存在
     if [[ -n ${EXCLUDE_DIR} ]]; then
         # 排除目录
-        find ${1} \( -path $(echo ${EXCLUDE_DIR} | sed "s/ / -o -path /") \) -prune -o -type f -print0 | xargs -0 $(echo ${DIFF_EXT}) > ${2}
+        find "${1}" \( -path $(echo ${EXCLUDE_DIR} | sed "s/ / -o -path /") \) -prune -o -type f -print0 | xargs -0 $(echo ${DIFF_TYPE}) > "${2}"
     else
-        find ${1} -type f -print0 | xargs -0 $(echo ${DIFF_EXT}) > ${2}
+        find "${1}" -type f -print0 | xargs -0 $(echo ${DIFF_TYPE}) > "${2}"
     fi
 }
 
 backupFile() {
     if [[ ${ZIP_BACKUP} = "true" ]]; then
-        tar -zcPf ${BACKUP_TAR_DIR}/${DIR_NAME}.${DATE}.tar.gz ${1}  # 备份文件
+        tar -zcPf "${BACKUP_TAR_DIR}/${DIR_NAME}.${DATE}.tar.gz" "${1}"  # 备份文件
     fi
 
     if [[ ${FILE_BACKUP} = "true" ]]; then
-        cp -rf ${1} ${BACKUP_FILE_DIR}/${DIR_NAME}_${DATE} # 备份文件
+        cp -rf "${1}" "${BACKUP_FILE_DIR}/${DIR_NAME}_${DATE}" # 备份文件
     fi
 }
