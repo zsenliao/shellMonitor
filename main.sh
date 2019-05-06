@@ -10,22 +10,26 @@ CUR_DIR=$(cd $(dirname $BASH_SOURCE); pwd)
 # 当前剩余容量小于设定容量，预警并退出备份
 CUR_SIZE=$(df -m /home | awk 'END{print $4}')
 if [[ ${CUR_SIZE} -lt ${MIN_SIZE} ]]; then
-    # email
-    WeChatNotice "警告：网站剩余空间不足！" "网站空间" "剩余 ${CUR_SIZE}M" "备份失败"
+    MailNotice "警告：服务器剩余空间不足！" "剩余 ${CUR_SIZE}M"
+    WeChatNotice "警告：服务器剩余空间不足！" "服务器空间" "剩余 ${CUR_SIZE}M" "备份失败"
     exit 0
 fi
-
 
 # 日期变量
 DATE=`date +%F_%H%M`
 DEL_DATE=`date -d -${BACKUP_DAY}day +%F`
+if [[ ${DB_BACK_PER} == "H" ]]; then
+    DB_DATE=`date +%F_%H`
+else
+    DB_DATE=`date +%F`
+fi
 
 # 检查备份路径是否存在，不存在则建立
 # 备份目录
-BACKUP_TAR_DIR="/home/backup/tar"  # 压缩文件目录
-BACKUP_LOG_DIR="/home/backup/log"  # 日志文件目录
-BACKUP_FILE_DIR="/home/backup/www"  # 文件备份目录
-BACKUP_DB_DIR="/home/backup/db"  # 数据库备份目录
+BACKUP_TAR_DIR="${BACKUP_DIR}/tar"  # 压缩文件目录
+BACKUP_LOG_DIR="${BACKUP_DIR}/log"  # 日志文件目录
+BACKUP_FILE_DIR="${BACKUP_DIR}/www"  # 文件备份目录
+BACKUP_DB_DIR="${BACKUP_DIR}/db"  # 数据库备份目录
 
 if [[ ! -e "${BACKUP_TAR_DIR}" ]]; then
     mkdir -p "${BACKUP_TAR_DIR}"
@@ -71,42 +75,36 @@ if [[ ${1} = "init" ]]; then
         [ $? -ne 0 ] && yum install -y mutt || echo "mutt is installed!" > /dev/null
     fi
 
-    ln -sf /home/shellMonitor/sysMonitor.sh /etc/profile.d/sysMonitor.sh
+    ln -sf ${CUR_DIR}/sysMonitor.sh /etc/profile.d/sysMonitor.sh
     sed -i "s/^PrintMotd [a-z]*/#&/g; 1,/#PrintMotd[a-z]*/{s/^#PrintMotd [a-z]*/PrintMotd no/g}" /etc/ssh/sshd_config
     service sshd restart
+
+    sed -i "s#\`which mysql\`#`which mysql`#g" dbMonitor.sh
+    sed -i "s#\`which mysqldump\`#`which mysqldump`#g" dbMonitor.sh
 
     initFileMonitor
     initDBMonitor
 
-    if [[ ${WECHAT_NOTICE} = "true" ]]; then
-        WeChatNotice "监控初始化成功！" "${WEBSITE}" "网站文件和数据库" "监控初始化成功" "文件目录：${MONITOR_DIR}"
-    fi
-
-    if [[ ${SC_NOTICE} = "true" ]]; then
-        ServerNotice "监控初始化成功！" "监控项目：网站文件和数据库"
-    fi
-
-    if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
-        PushBearNotice "监控初始化成功！" "监控项目：网站文件和数据库"
-    fi
+    WeChatNotice "监控初始化成功！" "${WEBSITE}" "服务器文件和数据库" "监控初始化成功" "文件目录：${MONITOR_DIR} \n数据库：${DB_MONITOR_NAME}"
+    ServerNotice "${WEBSITE} 监控初始化成功！" "文件目录：${MONITOR_DIR} \n数据库：${DB_MONITOR_NAME}"
+    MailNotice "${WEBSITE} 监控初始化成功！" "文件目录：${MONITOR_DIR} \n数据库：${DB_MONITOR_NAME}"
 
     echo "*/5 * * * * ${CUR_DIR}/main.sh" >> /var/spool/cron/root
 else
     fileMonitor
     dbMonitor
 
-    if [[ -n ${FILE_CHANGE} ]]; then
+    if [[ -f "/tmp/file.change.txt" ]]; then
         # 附件作为第三个参数: -a 文件路径
-        MailNotice "网站文件监控预警" "修改内容如下：<br>${FILE_CHANGE}"
+        MailNotice "服务器文件监控预警" "$(cat /tmp/file.change.txt | tr -d '\r')"
+        rm -f /tmp/file.change.txt
     fi
 
-    if [[ -n ${DB_CHANGE} ]]; then
-        MailNotice "数据库监控预警" "修改内容如下：<br>${DB_CHANGE}"
+    if [[ -f "/tmp/db.change.txt" ]]; then
+        MailNotice "数据库监控预警" "$(cat /tmp/db.change.txt | tr -d '\r')"
+        rm -f /tmp/db.change.txt
     fi
 fi
-
-FILE_CHANGE=""
-DB_CHANGE=""
 
 if [[ ${BACKUP_DAY} != 0 ]]; then
     rm -f "${BACKUP_TAR_DIR}/*.${DEL_DATE}*.tar.gz"

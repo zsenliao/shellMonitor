@@ -3,21 +3,25 @@
 MailNotice() {
     # 将备份文件保存至指定邮箱
     if [ "${MAIL_TYPE}" = "mail" ]; then
-        echo "${2}" | mail -s "${1}" "${3}" -r "${MAIL_FROM}" "${MAIL_TO}"
+        echo "${2}" | mail -s "${1}" "${MAIL_TO}"
     fi
 
     if [ "${MAIL_TYPE}" = "mutt" ]; then
-        echo "${2}" | mutt -s "${1}" "${MAIL_TO}" "${3}"
+        for MAILTO in $(echo "${MAIL_TO}" | tr -s ' '); do
+            echo "${2}" | mutt -s "${1}" "${MAILTO}"
+        done
     fi
 }
 
 WeChatNotice() {
-    GetAccessToken
+    if [[ ${WECHAT_NOTICE} = "true" ]]; then
+        GetAccessToken
 
-    # 发送模版消息，多个用户以空格分隔
-    for OPENID in $(echo "${TOUSER}" | tr -s ' '); do
-        wxTemplate "${OPENID}" "${1}" "${2}" "${3}" "${4}" "${5}"
-    done
+        # 发送模版消息，多个用户以空格分隔
+        for OPENID in $(echo "${TOUSER}" | tr -s ' '); do
+            wxTemplate "${OPENID}" "${1}" "${2}" "${3}" "${4}" "${5}"
+        done
+    fi
 }
 
 wxTemplate() {
@@ -31,33 +35,33 @@ wxTemplate() {
          --url "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=${ACCESS_TOKEN}" \
          --header "cache-control: no-cache" \
          --header "content-type: application/json" \
-         --data "{
-                'touser':'${1}',
-                'template_id':'${TEMPLATE_ID}',
-                'url':'',
-                'data':{
-                    'first': {
-                        'value':'${2}'\n,
-                        'color':'#565656'
+         --data '{
+                "touser":"'"${1}"'",
+                "template_id":"'"${TEMPLATE_ID}"'",
+                "url":"",
+                "data":{
+                    "first": {
+                        "value":"'"${2}"'\n",
+                        "color":"#565656"
                     },
-                    'keyword1': {
-                        'value':'${3}',
-                        'color':'#173177'
+                    "keyword1": {
+                        "value":"'"${3}"'",
+                        "color":"#173177"
                     },
-                    'keyword2': {
-                        'value':'${4}',
-                        'color':'#ff7700'
+                    "keyword2": {
+                        "value":"'"${4}"'",
+                        "color":"#ff7700"
                     },
-                    'keyword3': {
-                        'value':'${5}',
-                        'color':'#173177'
+                    "keyword3": {
+                        "value":"'"${5}"'",
+                        "color":"#173177"
                     },
-                    'remark': {
-                        'value':'\n${6}',
-                        'color':'#ff7700'
+                    "remark": {
+                        "value":"\n\n'"${6}"'",
+                        "color":"#ff7700"
                     }
                 }
-            }"
+            }'
 }
 
 GetAccessToken() {
@@ -89,14 +93,16 @@ GetAccessToken4Curl() {
     echo "$(date +%s)|expires_time" >> /tmp/access_token
 }
 
-PushBearNotice() {
-    curl -s -o /dev/null --request GET \
-         --url "https://pushbear.ftqq.com/sub?sendkey=${SENDKEY}&text=${1}&desp=${2}" \
-         --header 'cache-control: no-cache'
-}
-
 ServerNotice() {
-    curl -s -o /dev/null --request GET \
-         --url "https://sc.ftqq.com/${SCKEY}.send?text=${1}&desp=${2}" \
-         --header 'cache-control: no-cache'
+    if [[ ${SC_NOTICE} = "true" ]]; then
+        curl -s -o /dev/null --request GET \
+            --url "https://sc.ftqq.com/${SCKEY}.send?text=${1}&desp=${2}" \
+            --header 'cache-control: no-cache'
+    fi
+
+    if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
+        curl -s -o /dev/null --request GET \
+            --url "https://pushbear.ftqq.com/sub?sendkey=${SENDKEY}&text=${1}&desp=${2}" \
+            --header 'cache-control: no-cache'
+    fi
 }

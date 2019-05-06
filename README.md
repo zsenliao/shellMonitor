@@ -84,6 +84,18 @@ service sshd restart
 ```
 > 注意：需要修改 `sysMonitor.sh` 文件中的 `CUR_DIR` 为脚本所在的实际路径
 
+## 更新说明
+> 如果已经在服务器上使用了本工具，可参照以下说明进行升级
+* 下载`除 config.sh 外`的所有文件，覆盖原来的文件
+* 修改 `config.sh` 文件内容：
+  * 所有变量名（如`Mail_Type`、`DB_User`等）全部改为大写字母
+  * `DB_MONITOR_TABLE` 变量改为数组形式，参考说明更改
+  * 增加 `DB_MONITOR_FIELD` 变量，数组形式。参考说明更改
+  * 可选：删除 `MAIL_FROM`、`DB_ADMIN_MONITOR_TABLE`、`DB_ADMIN_MONITOR_FIELD` 变量
+* 在当前目录下执行以下操作：
+  * sed -i "s#\`which mysql\`#`which mysql`#g" dbMonitor.sh
+  * sed -i "s#\`which mysqldump\`#`which mysqldump`#g" dbMonitor.sh
+
 ## TODO
 * [x] 将设定系统任务添加到初始化任务中
 * [ ] 监控文件或数据库设置错误情况下的异常处理
@@ -95,8 +107,8 @@ service sshd restart
 * [x] 增加 「[Server酱](http://sc.ftqq.com/3.version)」预警通知功能
 * [x] 优化微信 `ACCESS_TOKEN` 获取方式
 * [ ] 文件监控中，增加多个排除的目录
-* [ ] 优化数据库/表的监控
-* [ ] 检测更改文件内容
+* [x] 优化数据库/表的监控
+* [ ] 检测更改文件的内容
 
 ## 相关说明及风险提示
 * 本工具可作为一些个人网站，或一些小微电商类型网站做**伪**入侵检测工具用，毕竟小微团队在系统运维及安全方面的投入几乎没有；

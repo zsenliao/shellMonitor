@@ -15,26 +15,15 @@ fileMonitor() {
             DIFF_FILE=$(diff "${ORIGIN_FILE}" "${TMP_FILE}" | awk '{print $1$3}' | sort -k2n | uniq -c -s3 | sed '/[<>]/!d;s/1 </【删除】/;s/1 >/【增加】/;s/2 </【编辑】/')
 
             if [[ -n $DIFF_FILE ]]; then
-                FILE_CHANGE="${FILE_CHANGE} ${DIR} is change:\\n"
-                FILE_CHANGE="${FILE_CHANGE} ${DIFF_FILE}"
-
+                echo "${DIR} is change: " >> /tmp/file.change.txt
                 echo "${DIFF_FILE}" >> "${LOG_FILE}"
-
+                echo "${DIFF_FILE}" >> /tmp/file.change.txt
+                echo "" >> /tmp/file.change.txt
+                cp -f "${TMP_FILE}" "${ORIGIN_FILE}"  # 将当前状态覆盖为初始监控状态
                 backupFile "${DIR}"
 
-                if [[ ${WECHAT_NOTICE} = "true" ]]; then
-                    WeChatNotice "警告：监控文件被修改！" "${WEBSITE}" "${DIR_NAME}" "文件更改" "${DIFF_FILE}"
-                fi
-
-                if [[ ${SC_NOTICE} = "true" ]]; then
-                    ServerNotice "监控项目：${DIR_NAME}文件修改" "修改内容：${DIFF_FILE}"
-                fi
-
-                if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
-                    PushBearNotice "监控项目：${DIR_NAME}文件修改" "修改内容：${DIFF_FILE}"
-                fi
-
-                cp -f "${TMP_FILE}" "${ORIGIN_FILE}"  # 将当前状态覆盖为初始监控状态
+                WeChatNotice "警告：监控文件被修改！" "${WEBSITE}" "${DIR_NAME}" "文件更改" "$(echo ${DIFF_FILE} | sed -r "s/\s*//g")"
+                ServerNotice "监控项目：${DIR_NAME}文件修改" "修改内容：$(echo ${DIFF_FILE} | sed -r "s/\s*//g")"
             fi
         fi
     done
