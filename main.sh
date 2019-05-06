@@ -46,26 +46,23 @@ fi
 
 OPT="--quote-names --opt"
 # 检查是否需要生成CREATE数据库语句
-if [[ "${CREATE_DATABASE}" = "yes" ]]; then
+if [[ "${CREATE_DATABASE}" == "yes" ]]; then
     OPT="${OPT} --databases"
 else
     OPT="${OPT} --no-create-db"
 fi
 
 # 检查是否是备份所有数据库
-if [[ "${DB_NAME}" = "all" ]]; then
+if [[ "${DB_NAME}" == "all" ]]; then
     DB_NAME="--all-databases"
 else
     DB_NAME="--databases ${DB_NAME}"
 fi
 
-if [[ ${DIFF_TYPE} = "du" ]]; then
-    DIFF_TYPE="du -b"
-elif [[ "${DIFF_TYPE}" = "md5" ]]; then
+if [[ ${DIFF_TYPE} == "md5" ]]; then
     DIFF_TYPE="md5sum"
 else
-    echo "文件对比方式选择错误，退出系统！"
-    exit 0
+    DIFF_TYPE="du -b"
 fi
 
 
@@ -79,8 +76,8 @@ if [[ ${1} = "init" ]]; then
     sed -i "s/^PrintMotd [a-z]*/#&/g; 1,/#PrintMotd[a-z]*/{s/^#PrintMotd [a-z]*/PrintMotd no/g}" /etc/ssh/sshd_config
     service sshd restart
 
-    sed -i "s#\`which mysql\`#`which mysql`#g" dbMonitor.sh
-    sed -i "s#\`which mysqldump\`#`which mysqldump`#g" dbMonitor.sh
+    sed -i "s#\`which mysql\`#`which mysql`#g" "${CUR_DIR}/dbMonitor.sh"
+    sed -i "s#\`which mysqldump\`#`which mysqldump`#g" "${CUR_DIR}/dbMonitor.sh"
 
     initFileMonitor
     initDBMonitor
