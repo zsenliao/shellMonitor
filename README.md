@@ -93,8 +93,8 @@ service sshd restart
   * 增加 `DB_MONITOR_FIELD` 变量，数组形式。参考说明更改
   * 可选：删除 `MAIL_FROM`、`DB_ADMIN_MONITOR_TABLE`、`DB_ADMIN_MONITOR_FIELD` 变量
 * 在当前目录下执行以下操作：
-  * sed -i "s#\`which mysql\`#`which mysql`#g" dbMonitor.sh
-  * sed -i "s#\`which mysqldump\`#`which mysqldump`#g" dbMonitor.sh
+  * sed -i "s#\\\`which mysql\\\`#\`which mysql\`#g" dbMonitor.sh
+  * sed -i "s#\\\`which mysqldump\\\`#\`which mysqldump\`#g" dbMonitor.sh
 
 ## TODO
 * [x] 将设定系统任务添加到初始化任务中
