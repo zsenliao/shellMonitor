@@ -2,23 +2,25 @@
 
 MailNotice() {
     # 将备份文件保存至指定邮箱
-    if [ "${MAIL_TYPE}" = "mail" ]; then
-        echo "${2}" | mail -s "${1}" "${MAIL_TO}"
-    fi
+    if [[ ${MAIL_NOTICE} == "true" ]]; then
+        if [[ "${MAIL_TYPE}" == "mail" ]]; then
+            echo "${2}" | mail -s "${1}" "${MAIL_TO}"
+        fi
 
-    if [ "${MAIL_TYPE}" = "mutt" ]; then
-        for MAILTO in $(echo "${MAIL_TO}" | tr -s ' '); do
-            echo "${2}" | mutt -s "${1}" "${MAILTO}"
-        done
+        if [[ "${MAIL_TYPE}" == "mutt" ]]; then
+            for MAILTO in $(echo "${MAIL_TO}" | tr -s ' '); do
+                echo "${2}" | mutt -s "${1}" "${MAILTO}"
+            done
+        fi
     fi
 }
 
 WeChatNotice() {
-    if [[ ${WECHAT_NOTICE} = "true" ]]; then
+    if [[ ${WECHAT_NOTICE} == "true" ]]; then
         GetAccessToken
 
         # 发送模版消息，多个用户以空格分隔
-        for OPENID in $(echo "${TOUSER}" | tr -s ' '); do
+        for OPENID in $(echo "${TO_USER}" | tr -s ' '); do
             wxTemplate "${OPENID}" "${1}" "${2}" "${3}" "${4}" "${5}"
         done
     fi
@@ -84,7 +86,7 @@ GetAccessToken4Curl() {
     # 获取微信 access token
     # return: {"access_token":"ACCESS_TOKEN","expires_in":7200}
     local JSON_STR
-    JSON_STR=$(curl -s --request GET --url "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${APPID}&secret=${SECRET}" --header 'cache-control: no-cache')
+    JSON_STR=$(curl -s --request GET --url "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${APP_ID}&secret=${APP_SECRET}" --header 'cache-control: no-cache')
     ACCESS_TOKEN=$(echo "${JSON_STR}" | sed "s/{\"access_token\":\"//" | sed "s/\",\"expires_in\":7200}//")
     # ACCESS_TOKEN=${JSON_STR#\{\"access_token\":\"}
     # ACCESS_TOKEN=${ACCESS_TOKEN%\",\"expires_in\":7200\}}
@@ -94,15 +96,15 @@ GetAccessToken4Curl() {
 }
 
 ServerNotice() {
-    if [[ ${SC_NOTICE} = "true" ]]; then
+    if [[ ${FTQQ_SC_NOTICE} == "true" ]]; then
         curl -s -o /dev/null --request GET \
-            --url "https://sc.ftqq.com/${SCKEY}.send?text=${1}&desp=${2}" \
+            --url "https://sc.ftqq.com/${FTQQ_SCKEY}.send?text=${1}&desp=${2}" \
             --header 'cache-control: no-cache'
     fi
 
-    if [[ ${PUSHBEAR_NOTICE} = "true" ]]; then
+    if [[ ${FTQQ_PB_NOTICE} == "true" ]]; then
         curl -s -o /dev/null --request GET \
-            --url "https://pushbear.ftqq.com/sub?sendkey=${SENDKEY}&text=${1}&desp=${2}" \
+            --url "https://pushbear.ftqq.com/sub?sendkey=${FTQQ_SENDKEY}&text=${1}&desp=${2}" \
             --header 'cache-control: no-cache'
     fi
 }

@@ -89,16 +89,32 @@ service sshd restart
 * 下载`除 config.sh 外`的所有文件，覆盖原来的文件
 * 修改 `config.sh` 文件内容：
   * 所有变量名（如`Mail_Type`、`DB_User`等）全部改为大写字母
-  * `DB_MONITOR_TABLE` 变量改为数组形式，参考说明更改
-  * 增加 `DB_MONITOR_FIELD` 变量，数组形式。参考说明更改
-  * 可选：删除 `MAIL_FROM`、`DB_ADMIN_MONITOR_TABLE`、`DB_ADMIN_MONITOR_FIELD` 变量
+  * 更改变量值类型：
+    * `DB_MONITOR_TABLE`: 由字符串改为数组形式
+  * 增加变量：
+    * `DB_MONITOR_FIELD`: 数据表中指定监控的字段
+    * `ENABLE_FILE_MONITOR`: 是否启用文件监控
+    * `ENABLE_DB_MONITOR`: 是否启用数据库监控，如禁用，数据库备份也会禁用
+  * 部分变量名更改：
+    * `WEBSITE`        → `HOST_NAME`
+    * `TOUSER`         → `TO_USER`
+    * `APPID`          → `APP_ID`
+    * `SECRET`         → `APP_SECRET`
+    * `SCKEY`          → `FTQQ_SCKEY`
+    * `SENDKEY`        → `FTQQ_SENDKEY`
+    * `SC_NOTIC`       → `FTQQ_SC_NOTICE`
+    * `PUSHBEAR_NOTIC` → `FTQQ_PB_NOTICE`
+  * 删除变量（可选）：
+    * `MAIL_FROM`
+    * `DB_ADMIN_MONITOR_TABLE`
+    * `DB_ADMIN_MONITOR_FIELD`
 * 在当前目录下执行以下操作：
   * sed -i "s#\\\`which mysql\\\`#\`which mysql\`#g" dbMonitor.sh
   * sed -i "s#\\\`which mysqldump\\\`#\`which mysqldump\`#g" dbMonitor.sh
 
 ## TODO
 * [x] 将设定系统任务添加到初始化任务中
-* [ ] 监控文件或数据库设置错误情况下的异常处理
+* [x] 监控文件或数据库设置错误情况下的 ~~异常~~ **报警** 处理
 * [x] 如邮件通知方式选择 `mutt` 但系统中并没有安装改工具下的处理
 * [x] 增加 `SSH` 登录的预警通知
 * [x] 增加 `SFTP` 登录的预警通知
@@ -106,7 +122,7 @@ service sshd restart
 * [x] 增加「[PushBear](http://pushbear.ftqq.com/admin/#/api)」预警通知功能
 * [x] 增加 「[Server酱](http://sc.ftqq.com/3.version)」预警通知功能
 * [x] 优化微信 `ACCESS_TOKEN` 获取方式
-* [ ] 文件监控中，增加多个排除的目录
+* [x] ~~文件监控中，增加多个排除的目录~~
 * [x] 优化数据库/表的监控
 * [ ] 检测更改文件的内容
 

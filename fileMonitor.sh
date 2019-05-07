@@ -11,8 +11,12 @@ fileMonitor() {
 
             getFileInfo "${DIR}" "${TMP_FILE}"
 
-            local DIFF_FILE
-            DIFF_FILE=$(diff "${ORIGIN_FILE}" "${TMP_FILE}" | awk '{print $1$3}' | sort -k2n | uniq -c -s3 | sed '/[<>]/!d;s/1 </【删除】/;s/1 >/【增加】/;s/2 </【编辑】/')
+            if [[ ${1} == "init" ]]; then
+                backupFile "${DIR}"
+            else
+                local DIFF_FILE
+                DIFF_FILE=$(diff "${ORIGIN_FILE}" "${TMP_FILE}" | awk '{print $1$3}' | sort -k2n | uniq -c -s3 | sed '/[<>]/!d;s/1 </【删除】/;s/1 >/【增加】/;s/2 </【编辑】/')
+            fi
 
             if [[ -n $DIFF_FILE ]]; then
                 echo "${DIR} is change: " >> /tmp/file.change.txt
@@ -22,24 +26,17 @@ fileMonitor() {
                 cp -f "${TMP_FILE}" "${ORIGIN_FILE}"  # 将当前状态覆盖为初始监控状态
                 backupFile "${DIR}"
 
-                WeChatNotice "警告：监控文件被修改！" "${WEBSITE}" "${DIR_NAME}" "文件更改" "$(echo ${DIFF_FILE} | sed -r "s/\s*//g")"
+                WeChatNotice "警告：监控文件被修改！" "${HOST_NAME}" "${DIR_NAME}" "文件更改" "$(echo ${DIFF_FILE} | sed -r "s/\s*//g")"
                 ServerNotice "监控项目：${DIR_NAME}文件修改" "修改内容：$(echo ${DIFF_FILE} | sed -r "s/\s*//g")"
             fi
         fi
     done
-}
 
-initFileMonitor() {
-    for DIR in $(echo "${MONITOR_DIR}" | tr -s ' '); do
-        if [[ -d ${DIR} ]]; then
-            local DIR_NAME=${DIR##*/}
-            local ORIGIN_FILE="${BACKUP_LOG_DIR}/${DIR_NAME}.origin.txt"
-
-            # 遍历指定目录下的文件大小及路径并重定向到日志文件
-            getFileInfo "${DIR}" "${ORIGIN_FILE}"
-            backupFile "${DIR}"
-        fi
-    done
+    if [[ ${1} == "init" ]]; then
+        WeChatNotice "监控初始化成功！" "${HOST_NAME}" "文件监控初始化" "操作成功" "监控目录：${MONITOR_DIR}\n排除目录：${EXCLUDE_DIR}"
+        ServerNotice "${HOST_NAME} 监控初始化成功！" "监控目录：${MONITOR_DIR}\n排除目录：${EXCLUDE_DIR}"
+        MailNotice "${HOST_NAME} 监控初始化成功！" "监控目录：${MONITOR_DIR}\n排除目录：${EXCLUDE_DIR}"
+    fi
 }
 
 getFileInfo() {
@@ -47,9 +44,17 @@ getFileInfo() {
     # find: 需要验证目录存在
     if [[ -n ${EXCLUDE_DIR} ]]; then
         # 排除目录
-        find "${1}" \( -path $(echo ${EXCLUDE_DIR} | sed "s/ / -o -path /") \) -prune -o -type f -print0 | xargs -0 $(echo ${DIFF_TYPE}) > "${2}"
+        find "${1}" \( -path $(echo ${EXCLUDE_DIR} | sed "s/ / -o -path /") \) -prune -o -type f -print0 2>/tmp/shellMonitor.file.error | xargs -0 $(echo ${DIFF_TYPE}) > "${2}"
     else
-        find "${1}" -type f -print0 | xargs -0 $(echo ${DIFF_TYPE}) > "${2}"
+        find "${1}" -type f -print0 2>/tmp/shellMonitor.file.error | xargs -0 $(echo ${DIFF_TYPE}) > "${2}"
+    fi
+
+    error_msg=$(cat /tmp/shellMonitor.file.error)
+    if [[ ${error_msg} != "" ]]; then
+        WeChatNotice "文件监控失败！" "${HOST_NAME}" "文件监控" "监控失败" "错误信息：${error_msg}"
+        ServerNotice "${HOST_NAME} 文件监控失败！" "错误信息：${error_msg}"
+        MailNotice "${HOST_NAME} 文件监控失败！" "错误信息：${error_msg}"
+        exit 1
     fi
 }
 
